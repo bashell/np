@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <libgen.h>
 
 #define ERR_EXIT(m) \
     do { \

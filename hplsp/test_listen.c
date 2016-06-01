@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <libgen.h>
 
 #define ERR_EXIT(m) \
     do { \
@@ -25,7 +26,7 @@ int main(int argc, char *argv[])
 {
     signal(SIGTERM, handle_term);
     if(argc <= 3) {
-        fprintf(stderr, "Usage: IP PORT backlog\n");
+        printf("Usage: %s IP PORT backlog\n", basename(argv[0]));
         exit(EXIT_FAILURE);
     }
     const char *ip = argv[1];

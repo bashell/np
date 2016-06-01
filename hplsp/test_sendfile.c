@@ -7,6 +7,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/sendfile.h>
 #include <libgen.h>
 
 #define ERR_EXIT(m) \
@@ -17,16 +20,22 @@
 
 int main(int argc, char *argv[])
 {
-    if(argc <= 2) {
-        printf("Usage: %s IP PORT\n", basename(argv[0]));
+    if(argc <= 3) {
+        printf("Usage: %s IP PORT filename\n", basename(argv[0]));
         exit(EXIT_FAILURE);
     }
-
     const char *ip = argv[1];
     int port = atoi(argv[2]);
+    const char *file_name = argv[3];
+
+    int filefd = open(file_name, O_RDONLY);
+    if(filefd == -1)
+        ERR_EXIT("open");
+    struct stat stat_buf;
+    fstat(filefd, &stat_buf);
 
     struct sockaddr_in myaddr;
-    bzero(&myaddr, sizeof(myaddr));
+    memset(&myaddr, 0, sizeof(myaddr));
     myaddr.sin_family = AF_INET;
     myaddr.sin_port = htons(port);
     myaddr.sin_addr.s_addr = inet_addr(ip);
@@ -39,16 +48,13 @@ int main(int argc, char *argv[])
     if(listen(sockfd, SOMAXCONN) == -1)
         ERR_EXIT("listen");
 
-    sleep(20);
-
     struct sockaddr_in client;
-    socklen_t client_addrlen = sizeof(client);
-    int connfd = accept(sockfd, (struct sockaddr*)&client, &client_addrlen);
-    if(connfd == -1)
+    socklen_t clientLen = sizeof(client);
+    int connfd = accept(sockfd, (struct sockaddr*)&client, &clientLen);
+    if(connfd == -1) {
         ERR_EXIT("accept");
-    else {
-        char remote[INET_ADDRSTRLEN];
-        printf("connected with ip: %s and port: %d\n", inet_ntop(AF_INET, &client.sin_addr, remote, INET_ADDRSTRLEN), ntohs(client.sin_port));
+    } else {
+        sendfile(connfd, filefd, NULL, stat_buf.st_size);
         close(connfd);
     }
     close(sockfd);

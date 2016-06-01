@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libgen.h>
 
 #define ERR_EXIT(m) \
     do { \
