@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
         ERR_EXIT("connection");
 
     struct pollfd fds[2];
+    // 注册标准输入(0)和sockfd上的可读事件
     fds[0].fd = 0;
     fds[0].events = POLLIN;
     fds[0].revents = 0;
@@ -61,15 +62,16 @@ int main(int argc, char *argv[])
             printf("poll failure\n");
             break;
         }
-        if(fds[1].revents & POLLRDHUP) {
+        if(fds[1].revents & POLLRDHUP) {  // sockfd上收到对方关闭连接请求
             printf("server close the connection\n");
             break;
-        } else if(fds[1].revents & POLLIN) {
+        } else if(fds[1].revents & POLLIN) {  // sockfd上发生可读事件
             memset(read_buf, 0, BUFFER_SIZE);
             recv(fds[1].fd, read_buf, BUFFER_SIZE-1, 0);
             printf("%s\n", read_buf);
         }
-        if(fds[0].revents & POLLIN) {
+        if(fds[0].revents & POLLIN) {  // 向标准输入写入数据
+            // 零拷贝: 将用户输入的数据直接写入sockfd上
             if(splice(0, NULL, pipefd[1], NULL, 32768, SPLICE_F_MORE | SPLICE_F_MOVE) == -1)
                 ERR_EXIT("splice");
             if(splice(pipefd[0], NULL, sockfd, NULL, 32768, SPLICE_F_MORE | SPLICE_F_MOVE) == -1)
