@@ -1,2 +1,2 @@
-# unp
-unix network programming
+# np
+Linux/Unix network programming
