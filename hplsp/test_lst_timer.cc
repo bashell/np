@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         ERR_EXIT("epoll_create");
     addfd(epollfd, sockfd);
 
-    int ret = socketpair(AF_INET, SOCK_STREAM, 0, pipefd);
+    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, pipefd);
     if(ret == -1)
         ERR_EXIT("socketpair");
     setnonblocking(pipefd[1]);
