@@ -1,3 +1,6 @@
+#ifndef _READN_WRITEN_READLINE_H_
+#define _READN_WRITEN_READLINE_H_
+
 #include <unistd.h>
 #include <errno.h>
 
@@ -96,8 +99,4 @@ ssize_t readlinebuf(void **vptrptr) {
     return read_cnt;
 }
 
-
-int main()
-{
-    return 0;
-}
+#endif  /* _READN_WRITEN_READLINE_H_ */
